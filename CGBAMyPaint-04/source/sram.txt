@@ -1,0 +1,7 @@
+#define SRAM ((volatile u8*) 0x0E000000)
+
+// Writing a byte to the first SRAM address
+SRAM[0] = 0x42;
+
+// Reading a byte from SRAM
+u8 saved_value = SRAM[0];

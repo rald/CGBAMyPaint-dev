@@ -35,6 +35,11 @@ volatile unsigned short* buttons = (volatile unsigned short*) 0x04000130;
 #define BUTTON_R (1 << 8)
 #define BUTTON_L (1 << 9)
 
+#define BITMAP_PIXEL_SIZE 4
+#define BITMAP_W (GBA_SCREEN_W/BITMAP_PIXEL_SIZE)
+#define BITMAP_H (GBA_SCREEN_H/BITMAP_PIXEL_SIZE)
+#define BITMAP_S (BITMAP_W*BITMAP_H)
+
 unsigned char button_pressed(unsigned short button) {
   unsigned short pressed = *buttons & button;
   if (pressed == 0) {
@@ -155,7 +160,21 @@ int main(void) {
 
 	uint16_t seed=0;
 
-	int s=4,w=GBA_SCREEN_W/s,h=GBA_SCREEN_H/s;
+	struct Bitmap {
+		int pixelSize;
+		int width,height;
+		int pixels[BITMAP_W*BITMAP_H];
+	};
+	
+	struct Bitmap bitmap;
+
+	bitmap.pixelSize=BITMAP_PIXEL_SIZE;
+	bitmap.width=BITMAP_W;
+	bitmap.height=BITMAP_H;
+
+	for(int i=0;i<BITMAP_S;i++) {
+		bitmap.pixels[i]=0;
+	}
 
 	int hold=FALSE;
 
@@ -169,10 +188,17 @@ int main(void) {
 		int hold;
 	};
 
-	struct Cursor cursor = {w/2,h/2,s,0,0,5000,0,TRUE,FALSE};
+	struct Cursor cursor = {
+		bitmap.width/2,
+		bitmap.height/2,
+		bitmap.pixelSize,
+		0,0,5000,0,TRUE,FALSE
+	};
 
 	int isButtonAPressed = FALSE;
 	int isButtonBPressed = FALSE;
+	int isButtonLPressed = FALSE;
+	int isButtonRPressed = FALSE;
 
 	int isButtonUpPressed = FALSE;
 	int isButtonDownPressed = FALSE;
@@ -190,6 +216,7 @@ int main(void) {
 
 	frect(GBA_SCREEN,0,0,GBA_SCREEN_W,GBA_SCREEN_H,sweetie[0]);
 
+	bitmap.pixels[cursor.y*bitmap.width+cursor.x]=currentSweetieIndex;
 	frect(GBA_SCREEN,cursor.x*cursor.size,cursor.y*cursor.size,cursor.size,cursor.size,sweetie[currentSweetieIndex]);
 
     while(1) {
@@ -208,6 +235,8 @@ int main(void) {
 
    		isButtonAPressed     = button_pressed(BUTTON_A);
 		isButtonBPressed     = button_pressed(BUTTON_B);
+   		isButtonLPressed     = button_pressed(BUTTON_L);
+		isButtonRPressed     = button_pressed(BUTTON_R);
 		isButtonUpPressed    = button_pressed(BUTTON_UP);
 		isButtonDownPressed  = button_pressed(BUTTON_DOWN);
 		isButtonLeftPressed  = button_pressed(BUTTON_LEFT);
@@ -242,8 +271,9 @@ int main(void) {
 			hold=FALSE;
 		}
 
-		if(!cursor.hold && (isButtonAPressed || isButtonBPressed || isButtonUpPressed || isButtonDownPressed || isButtonLeftPressed || isButtonRightPressed)) {
+		if(!cursor.hold && (isButtonUpPressed || isButtonDownPressed || isButtonLeftPressed || isButtonRightPressed)) {
 
+			bitmap.pixels[cursor.y*bitmap.width+cursor.x]=currentSweetieIndex;
 			frect(GBA_SCREEN,cursor.x*cursor.size,cursor.y*cursor.size,cursor.size,cursor.size,sweetie[currentSweetieIndex]);
 
 			cursor.dx=0;
@@ -272,15 +302,16 @@ int main(void) {
 			cursor.x+=cursor.dx;
 			cursor.y+=cursor.dy;
 
-			if(cursor.x<0) cursor.x=w-1;
-			if(cursor.x>=w) cursor.x=0;
+			if(cursor.x<0) cursor.x=bitmap.width-1;
+			if(cursor.x>=bitmap.width) cursor.x=0;
 
-			if(cursor.y<0) cursor.y=h-1;
-			if(cursor.y>=h) cursor.y=0;
+			if(cursor.y<0) cursor.y=bitmap.height-1;
+			if(cursor.y>=bitmap.height) cursor.y=0;
 
+			bitmap.pixels[cursor.y*bitmap.width+cursor.x]=currentSweetieIndex;
 			frect(GBA_SCREEN,cursor.x*cursor.size,cursor.y*cursor.size,cursor.size,cursor.size,sweetie[currentSweetieIndex]);
 			
-		} else if(!(isButtonAPressed || isButtonUpPressed || isButtonDownPressed || isButtonLeftPressed || isButtonRightPressed)) {
+		} else if(!(isButtonUpPressed || isButtonDownPressed || isButtonLeftPressed || isButtonRightPressed)) {
 			cursor.hold=FALSE;
 		}
 
