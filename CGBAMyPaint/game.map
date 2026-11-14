@@ -134,8 +134,7 @@ Discarded input sections
  .text.bget     0x00000000       0x70 build/main.c.o
  .text.bput     0x00000000       0x74 build/main.c.o
  .text.sgn      0x00000000       0x10 build/main.c.o
- .rodata.sram_backup_id
-                0x00000000        0xa build/main.c.o
+ .rodata        0x00000000        0xa build/main.c.o
  .data.font_frames
                 0x00000000        0x1 build/main.c.o
  .text          0x00000000        0x0 build/sys/syscalls.c.o

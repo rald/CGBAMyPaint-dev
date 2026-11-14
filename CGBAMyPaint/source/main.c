@@ -42,6 +42,9 @@ volatile unsigned short* buttons = (volatile unsigned short*) 0x04000130;
 #define BITMAP_H (GBA_SCREEN_H/BITMAP_PIXEL_SIZE)
 #define BITMAP_S (BITMAP_W*BITMAP_H)
 
+// Force the SRAM backup ID into the rodata section with explicit alignment or positioning
+const char sram_backup_id[] __attribute__((section(".rodata"))) = "SRAM_V113";
+
 struct Bitmap {
 	uint8_t pixelSize;
 	uint8_t width,height;
@@ -57,9 +60,6 @@ struct Cursor {
 	int isVisible;
 	int hold;
 };
-
-// Mandatory backup ID string for emulators/flash carts to recognize SRAM
-const char sram_backup_id[] = "SRAM_V113";
 
 void save(struct Bitmap *bitmap,uint8_t slot) {
 	volatile uint8_t* dest = SRAM_BASE + (slot * sizeof(struct Bitmap));
