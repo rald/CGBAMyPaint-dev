@@ -157,6 +157,8 @@ int main(void) {
 
 	int s=4,w=GBA_SCREEN_W/s,h=GBA_SCREEN_H/s;
 
+	int hold=FALSE;
+
 	struct Cursor {
 		int x,y;
 		int size;
@@ -164,11 +166,10 @@ int main(void) {
 		int blinkDelay;
 		int blinkCounter;
 		int isVisible;
+		int hold;
 	};
 
-	struct Cursor cursor = {w/2,h/2,s,0,0,25000,0,TRUE};
-
-	int hold=FALSE;
+	struct Cursor cursor = {w/2,h/2,s,0,0,5000,0,TRUE,FALSE};
 
 	int isButtonAPressed = FALSE;
 	int isButtonBPressed = FALSE;
@@ -203,21 +204,15 @@ int main(void) {
 			}
 		}
 		cursor.blinkCounter++;
-    	
-		isButtonAPressed     = button_pressed(BUTTON_A);
+
+   		isButtonAPressed     = button_pressed(BUTTON_A);
 		isButtonBPressed     = button_pressed(BUTTON_B);
 		isButtonUpPressed    = button_pressed(BUTTON_UP);
 		isButtonDownPressed  = button_pressed(BUTTON_DOWN);
 		isButtonLeftPressed  = button_pressed(BUTTON_LEFT);
 		isButtonRightPressed = button_pressed(BUTTON_RIGHT);
-	
-		if(!hold && (isButtonAPressed || isButtonBPressed || isButtonUpPressed || isButtonDownPressed || isButtonLeftPressed || isButtonRightPressed)) {
 
-			frect(GBA_SCREEN,cursor.x*cursor.size,cursor.y*cursor.size,cursor.size,cursor.size,sweetie[currentSweetieIndex]);
-
-			cursor.dx=0;
-			cursor.dy=0;
-
+		if(!hold) {
 			if(isButtonAPressed) {
 				hold=TRUE;
 				currentSweetieIndex++;
@@ -235,23 +230,34 @@ int main(void) {
 				cursor.isVisible=TRUE;
 			}
 
+		} else if(!(isButtonAPressed || isButtonBPressed)) {
+			hold=FALSE;
+		}
+
+		if(!cursor.hold && (isButtonAPressed || isButtonBPressed || isButtonUpPressed || isButtonDownPressed || isButtonLeftPressed || isButtonRightPressed)) {
+
+			frect(GBA_SCREEN,cursor.x*cursor.size,cursor.y*cursor.size,cursor.size,cursor.size,sweetie[currentSweetieIndex]);
+
+			cursor.dx=0;
+			cursor.dy=0;
+
 			if(isButtonUpPressed) {
-				hold=TRUE;
+				cursor.hold=TRUE;
 				cursor.dy=-1; 
 			}
 
 			if(isButtonDownPressed) {
-				hold=TRUE;
+				cursor.hold=TRUE;
 				cursor.dy=1; 
 			}
 
 			if(isButtonLeftPressed) {
-				hold=TRUE;
+				cursor.hold=TRUE;
 				cursor.dx=-1;
 			}
 
 			if(isButtonRightPressed) {
-				hold=TRUE;
+				cursor.hold=TRUE;
 				cursor.dx=1;
 			}
 
@@ -267,7 +273,7 @@ int main(void) {
 			frect(GBA_SCREEN,cursor.x*cursor.size,cursor.y*cursor.size,cursor.size,cursor.size,sweetie[currentSweetieIndex]);
 			
 		} else if(!(isButtonAPressed || isButtonUpPressed || isButtonDownPressed || isButtonLeftPressed || isButtonRightPressed)) {
-			hold=FALSE;
+			cursor.hold=FALSE;
 		}
 
     }
