@@ -138,7 +138,7 @@ void dbmp(volatile uint16_t* srf,uint8_t* bmp,uint8_t w,uint8_t h,uint8_t x,uint
   }
 }
 
-void dchr(volatile uint16_t* srf,uint8_t* fnt,uint8_t w,uint8_t h,uint8_t x,uint8_t y,uint8_t s,uint16_t c,uint8_t f) {
+void dchr(volatile uint16_t* srf,uint8_t* fnt,uint8_t w,uint8_t h,uint8_t f,uint8_t x,uint8_t y,uint8_t s,uint16_t c) {
   for(int j=0;j<h;j++) {
     for(int i=0;i<w;i++) {
       int k=fnt[i+j*w+f*w*h];
@@ -166,12 +166,13 @@ void dtxt(volatile uint16_t* srf,uint8_t* fnt,uint8_t w,uint8_t h,char* txt,uint
   for(int i=0;txt[i];i++) {
     int j=indexOf(l,txt[i]);
     if(j!=-1) {
-      dchr(srf,fnt,w,h,xc,yc,s,c,j);
+      dchr(srf,fnt,w,h,j,xc,yc,s,c);
     }
     xc+=w*s;
-    if(xc+w*s>=GBA_SCREEN_W) {
+    if(xc+w*s>GBA_SCREEN_W) {
+      xc=0;
       yc+=h*s;
-      if(yc+h*s>=GBA_SCREEN_H) break;
+      if(yc+h*s>GBA_SCREEN_H) break;
     }
   }
 }
@@ -234,7 +235,34 @@ int main(void) {
 	int draw = FALSE;
 		
 	frect(GBA_SCREEN,0,0,GBA_SCREEN_W,GBA_SCREEN_H,sweetie[0]);
-	dtxt(GBA_SCREEN,font_pixels,font_width,font_height,"PRESS START BUTTON",0,0,1,sweetie[12]);
+
+	int py=0;
+
+	dtxt(GBA_SCREEN,font_pixels,font_width,font_height,"HOW TO USE",0,py,1,sweetie[12]);
+
+	py+=font_height*2;
+
+	dtxt(GBA_SCREEN,font_pixels,font_width,font_height,"ARROW KEYS MOVE CURSOR",0,py,1,sweetie[12]);
+
+	py+=font_height;
+
+	dtxt(GBA_SCREEN,font_pixels,font_width,font_height,"A BUTTON CHANGE COLOR",0,py,1,sweetie[12]);
+
+	py+=font_height;
+
+	dtxt(GBA_SCREEN,font_pixels,font_width,font_height,"B BUTTON TOGGLE DRAW",0,py,1,sweetie[12]);
+
+	py+=font_height;
+
+	dtxt(GBA_SCREEN,font_pixels,font_width,font_height,"L BUTTON LOAD",0,py,1,sweetie[12]);
+
+	py+=font_height;
+
+	dtxt(GBA_SCREEN,font_pixels,font_width,font_height,"R BUTTON SAVE",0,py,1,sweetie[12]);
+
+	py+=font_height*2;
+
+	dtxt(GBA_SCREEN,font_pixels,font_width,font_height,"PRESS START BUTTON TO CONTINUE",0,py,1,sweetie[12]);
 
 	while(!button_pressed(BUTTON_START)) seed++;
 	srand(seed);
