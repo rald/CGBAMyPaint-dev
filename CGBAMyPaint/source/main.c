@@ -180,7 +180,8 @@ int main(void) {
 	int isButtonRightPressed = FALSE;
 
 	int currentSweetieIndex = 12;
-	
+	int previousSweetieIndex = 12;
+		
 	frect(GBA_SCREEN,0,0,GBA_SCREEN_W,GBA_SCREEN_H,sweetie[0]);
 	dtxt(GBA_SCREEN,font_pixels,font_width,font_height,0,0,1,sweetie[12],"PRESS START BUTTON");
 
@@ -215,9 +216,15 @@ int main(void) {
 		if(!hold) {
 			if(isButtonAPressed) {
 				hold=TRUE;
-				currentSweetieIndex++;
-				if(currentSweetieIndex>=16) {
-					currentSweetieIndex=0;
+
+				if(previousSweetieIndex!=currentSweetieIndex) {
+					currentSweetieIndex=previousSweetieIndex;
+				} else {
+					currentSweetieIndex++;
+					if(currentSweetieIndex>=16) {
+						currentSweetieIndex=0;
+					}
+					previousSweetieIndex=currentSweetieIndex;
 				}
 				cursor.blinkCounter=0;
 				cursor.isVisible=TRUE;
@@ -225,6 +232,7 @@ int main(void) {
 
 			if(isButtonBPressed) {
 				hold=TRUE;
+				previousSweetieIndex=currentSweetieIndex;
 				currentSweetieIndex=0;
 				cursor.blinkCounter=0;
 				cursor.isVisible=TRUE;
