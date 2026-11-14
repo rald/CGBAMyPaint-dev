@@ -58,6 +58,9 @@ struct Cursor {
 	int hold;
 };
 
+// Mandatory backup ID string for emulators/flash carts to recognize SRAM
+const char sram_backup_id[] = "SRAM_V113";
+
 void save(struct Bitmap *bitmap,uint8_t slot) {
 	volatile uint8_t* dest = SRAM_BASE + (slot * sizeof(struct Bitmap));
 	dest[0]=bitmap->pixelSize;
@@ -157,7 +160,7 @@ int indexOf(char* l,uint8_t c) {
   return j;
 }
 
-void dtxt(volatile uint16_t* srf,uint8_t* fnt,uint8_t w,uint8_t h,uint8_t x,uint8_t y,uint8_t s,uint16_t c,char* txt) {
+void dtxt(volatile uint16_t* srf,uint8_t* fnt,uint8_t w,uint8_t h,char* txt,uint8_t x,uint8_t y,uint8_t s,uint16_t c) {
   char* l="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   int xc=x,yc=y;
   for(int i=0;txt[i];i++) {
@@ -231,7 +234,7 @@ int main(void) {
 	int draw = FALSE;
 		
 	frect(GBA_SCREEN,0,0,GBA_SCREEN_W,GBA_SCREEN_H,sweetie[0]);
-	dtxt(GBA_SCREEN,font_pixels,font_width,font_height,0,0,1,sweetie[12],"PRESS START BUTTON");
+	dtxt(GBA_SCREEN,font_pixels,font_width,font_height,"PRESS START BUTTON",0,0,1,sweetie[12]);
 
 	while(!button_pressed(BUTTON_START)) seed++;
 	srand(seed);
@@ -271,6 +274,10 @@ int main(void) {
 				}
 				cursor.blinkCounter=0;
 				cursor.isVisible=FALSE;
+				if(draw) {
+					bitmap.pixels[cursor.y*bitmap.width+cursor.x]=currentSweetieIndex;
+					frect(GBA_SCREEN,cursor.x*cursor.size,cursor.y*cursor.size,cursor.size,cursor.size,sweetie[currentSweetieIndex]);
+				}
 			}
 
 			if(isButtonBPressed) {
